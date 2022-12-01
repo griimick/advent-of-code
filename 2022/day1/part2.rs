@@ -25,7 +25,7 @@ fn main() -> io::Result<()> {
     heap.push(Reverse(bucket));
 
     let mut sum = 0;
-    for _i in 0..2 {
+    while !heap.is_empty()  {
         if let Some(Reverse(v)) = heap.pop() {
             sum += v;
         }
