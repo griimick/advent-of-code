@@ -1,3 +1,7 @@
+.vscode/
+bin/
+compile_commands.json
+.cache
 # Prerequisites
 *.d
 
