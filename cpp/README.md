@@ -1,31 +1,62 @@
-# Advent of Code Framework
+# advent-of-code-cpp-starter
+This is a simple C++ runner for doing Advent-of-Code challenges. It's designed to have one executable which is given parameters for the day and part, and then it will run that particular solution.
 
-A framework to build solutions to the Advent of Code competition on. It includes some basic utilities, and a test suite to verify your solutions. Example cases can also be tested.
+It's designed for C++ under Linux. I've tested it with CentOS 8 and GCC version 8.3.1.
 
-## To add a testcase
+## Building the starter:
+After checking out the project, it's just 2 commands to build
 
-See the examples in advent1.h, advent1.cpp, and advent_of_code_testcases.cpp.
+    ./mkdirs.sh
+    make
 
-1. Declare the function in the approriate header (normally adventx.h, where x is the day number) and implement in the appropriate .cpp file. It must take no arguments, and return ResultType. E.g.:
+`mkdirs.sh` will create the bin and build directories and their subdirectories. It only needs to be run the first time.
 
-     `// advent42.h`  
-     `ResultType advent_fortytwo_testcase_a();`
-     
-     `// advent42.cpp`    
-     `ResultType advent_fortytwo_testcase_a() { return "Life The Universe and Everything"; }`
-     
-2. In advent_of_code_testcases.cpp, go to `const verification_tests tests[]` and add the line `TESTCASE(your_functionName, expected_result),` at the appropriate point in the array. `expected_result` should be a string. In this example it would be `TESTCASE(advent_fortytwo_testcase_a,"Life The Universe and Everything"),`. Importantly: remember to add a COMMA at the end, not a semi-colon. (It's obvious, but muscle memory and habit will make you want to use the semi-colon.)
+### Working on a Day's Solution
 
-Now when you run the tests, the testcase should appear, and will report success or failure.
+The starter comes with a Day 0 implementation, which is based on Advent of Code 2018, day 1, part 1. The part 1 solution matches the problem, and the part 2 solution the same as part 1, except it gives the negation of the part 1 result for a solution. Looking at [`aoc_day_0.h`](include/solutions/aoc_day_0.h), [`/aoc_day_0.cpp`](src/solutions/aoc_day_0.cpp), and [`aoc_days.cpp`](src/solutions/aoc_days.cpp) will show all the coding needed to hook in a new day.
 
-## To filter which testcases run
+Each day's solution will inherit from the AocDay class (include/solutions/aoc_day.h) as is done in include/solutions/aoc_day_0.h .
 
-In main.cpp, a filter can be added to the argument of `verify_all()` to only run some of hte testcases, instead of everything. For example, if your day one solution is very slow you can put an argument of `"_two_"` in, and it will only run functions on the `verification_tests` list which have `two` in the function name (e.g. `advent_two_p1()` and `advent_two_p2()` as well as `advent_two_p1_testcase_a()` if you added it. To run everything, leave the testcase blank (`""` or `std::string{}`).
+There are two functions to override in the child class:
 
-## Best practices
+    virtual string part1(string filename, vector<string> extra_args);
+    virtual string part2(string filename, vector<string> extra_args);
 
-If you add testcases, name them `advent_[day number]_[p1 or p2, depending which part]_testcase_[letter]()` in order to make the filtering easy.
+The base AocDay class has default implementations of these functions, so you don't even have to define a part2 function until after part1 is done, if you'd prefer.
 
-For functions specifically for solving a particular solution, put them in an unnamed namespace in the right file.
+Each function takes two parameters - the filename for the input file and a vector of extra arguments, which I'll describe below.
 
-If 2019's code was anything to go by, don't be afraid to add common tasks to their own headers. For an example: a generic A* search function should probably in be the utility file, and I had all the Intcode stuff in its own folder last time. Anything that used the Intcode machine had `_ic` added to the function names which meant that I could edit the Intmachine and then run my testcases with `_ic` as the filter to make sure I didn't break any previous compatibility. This is a great project to test your ability to reuse old code.
+The return value is a string for the solution. *"Why a string and not an int/long?"* you might ask. Although Advent of code 2019 had only numeric solutions, I found that in 2018 there were times when the solution was non-numeric (day 7 part 1, day 13 parts 1 and 2). So, this function returns a string back to the driver program.
+
+### Extra arguments
+The parameter of `extra_args` is useful to prevent code changes for hard-coding limits or other constants. For example, let's say the test cases presented in the problem description show a result after 10 iterations, but then the actual answer is supposed to run 1000000 times. You can pass the `10` or `1000000` value as an extra arguent instead of having to change a constant and recompile. These are also passed in as strings, which can then be converted to ints/longs/whatever as needed.
+
+### Makefile changes
+I'll preface this by saying that I don't like dealing with Makefiles. I'm sure I could make some of this prettier, but it is what it is.
+
+The Makefile for this compiles a couple of libraries - librunner.a for some of the basic test runner functionality, and libsolutions.a for the daily solutions. As things get more complex, I'm sure more libraries will get added. If you want to see what I mean, there's a more complex example in my intCode repo (https://github.com/bcooperstl/intCode). 
+
+For each day's solution, the Makefile file will need to be modified to add in a .o file target that corresponds to the .cpp file for that day. That .o file must also be added to libsolutions.a . 
+
+The final executable is built as bin/aoc
+
+### Useful-ish Helper Functions
+There are some helper functions in the `FileUtils` class to read in and parse an input file. 
+
+`bool read_as_list_of_strings(string filename, vector<string> & lines)` - Read the file given by `filename` and return the lines of the file in the `lines` vector.  
+`bool read_as_list_of_split_strings(string filename, vector<vector<string>> & split_strings, char delimiter, char quote_char, char comment_char)` - Read the file given by filename, return it as a list of list of strings in the `split_strings` vector. `delimiter` identfies a delimiter to identify how to split the strings. `quote_char` gives a way to allow the delimiter to appear in a string by quoting around it. `comment_char` allows for a line to be skipped from the output if it starts with this character. This probably sounds like overkill, but I use a bunch of this with my test file format. See [testing.md](testing.md) for an example and more details.  
+`bool read_as_list_of_split_longs(string filename, vector<vector<long>> & split_longs, char delimiter, char quote_char, char comment_char)` - Same as `read_as_list_of_split_strings` but with longs. Think of it as an easy way to read in an intcode program from 2019, if you will.
+
+
+## Running a solution
+There are three modes to run this program as shown in the usage. This section describes how to run one input file through. The [testing.md](testing.md) file describes the two other modes.  
+The command line is:
+
+    bin/aoc -d day -p part -f filename [extra_args...]
+
+Everything should be straight forward - give it the day, part (1 or 2), input file, and optionally any extra arguments. It'll spit out the result or tell you if there's an error.
+
+For example:  
+
+    [brian@dev1 advent-of-code-cpp-starter]$ bin/aoc -d 0 -p 1 -f data/sample/day0_input.txt
+    ***Day 0 Part 1 for file data/sample/day0_input.txt has result 569
