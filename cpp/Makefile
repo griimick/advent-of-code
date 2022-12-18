@@ -57,16 +57,23 @@ build/solutions/aoc_day_1.o: src/solutions/aoc_day_1.cpp  \
 	include/common/constants.h
 	g++ ${CPPFLAGS} -o build/solutions/aoc_day_1.o -c src/solutions/aoc_day_1.cpp
 
+build/solutions/aoc_day_18.o: src/solutions/aoc_day_18.cpp  \
+	include/solutions/aoc_day_18.h \
+	include/solutions/aoc_day.h \
+	include/common/constants.h
+	g++ ${CPPFLAGS} -o build/solutions/aoc_day_18.o -c src/solutions/aoc_day_18.cpp
 #Be sure to add the .o file to the libsoluations.a target
 ###################################################################################
 bin/lib/libsolutions.a: build/solutions/aoc_day.o  \
 	build/solutions/aoc_days.o \
 	build/solutions/aoc_day_0.o \
-	build/solutions/aoc_day_1.o
+	build/solutions/aoc_day_1.o \
+	build/solutions/aoc_day_18.o
 	ar rcs bin/lib/libsolutions.a build/solutions/aoc_day.o \
 	build/solutions/aoc_days.o \
 	build/solutions/aoc_day_0.o \
-	build/solutions/aoc_day_1.o
+	build/solutions/aoc_day_1.o \
+	build/solutions/aoc_day_18.o
 
 ##################################################################################3
 # The aoc executable
