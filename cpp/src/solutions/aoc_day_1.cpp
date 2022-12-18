@@ -5,20 +5,20 @@
 #include <cstdlib>
 #include <algorithm>
 
-#include "aoc_day_0.h"
+#include "aoc_day_1.h"
 #include "file_utils.h"
 
 using namespace std;
 
-AocDay0::AocDay0():AocDay(0)
+AocDay1::AocDay1():AocDay(0)
 {
 }
 
-AocDay0::~AocDay0()
+AocDay1::~AocDay1()
 {
 }
 
-vector<long> AocDay0::read_input(string filename)
+vector<long> AocDay1::read_input(string filename)
 {
     FileUtils fileutils;
     vector<string> raw_lines;
@@ -44,7 +44,7 @@ vector<long> AocDay0::read_input(string filename)
     return data;
 }
 
-string AocDay0::part1(string filename, vector<string> extra_args)
+string AocDay1::part1(string filename, vector<string> extra_args)
 {
     vector<long> data = read_input(filename);
     long sum = *max_element(data.begin(), data.end());
@@ -53,7 +53,7 @@ string AocDay0::part1(string filename, vector<string> extra_args)
     return out.str();
 }
 
-string AocDay0::part2(string filename, vector<string> extra_args)
+string AocDay1::part2(string filename, vector<string> extra_args)
 {
     if (extra_args.size() > 0)
     {
